@@ -64,6 +64,8 @@
                 </button>
                 <div class='d-flex align-items-center justify-content-between mb-4'>
                     <h6 class='mb-0'>Lista de Productos</h6>
+                    <input id="inputBuscar" type="text" class="form-control" placeholder="Buscar producto...">
+    </div>
                 </div>
 
                 <table class="table table-bordered table-striped table-hover table-responsive">
@@ -310,6 +312,52 @@
                         }
                     });
                 });
+
+                $('#inputBuscar').on('input', function() {
+            var nombre = $(this).val().trim();
+            buscarProductos(nombre);
+        });
+
+        // Función para buscar productos por nombre
+        function buscarProductos(nombre) {
+            $.ajax({
+                url: '../controllers/producto.controllers.php?op=buscar&nombre=' + nombre,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.length > 0) {
+                        mostrarProductos(response);
+                    } else {
+                        // Mostrar un mensaje si no se encuentran productos
+                        var mensaje = '<tr><td colspan="5" class="text-center">No se encontraron productos con el nombre especificado.</td></tr>';
+                        $('#cuerpoProductos').html(mensaje);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('Error al buscar productos.');
+                }
+            });
+        }
+
+        // Función para mostrar productos en la tabla
+        function mostrarProductos(productos) {
+            var cuerpoProductos = $('#cuerpoProductos');
+            cuerpoProductos.empty();
+            $.each(productos, function(index, producto) {
+                var fila = '<tr data-id="' + producto.id + '">' +
+                    '<td>' + producto.id + '</td>' +
+                    '<td>' + producto.nombre + '</td>' +
+                    '<td>' + producto.precio + '</td>' +
+                    '<td>' + producto.stock + '</td>' +
+                    '<td>' +
+                    '<button class="btn btn-sm btn-warning btn-editar" data-id="' + producto.id + '">Editar</button>' +
+                    '<button class="btn btn-sm btn-danger btn-eliminar ms-2" data-id="' + producto.id + '">Eliminar</button>' +
+                    '</td>' +
+                    '</tr>';
+                cuerpoProductos.append(fila);
+            });
+        }
             </script>
         </div>
         <!-- Content End -->

@@ -79,6 +79,20 @@ if (isset($_GET['op'])) {
         default:
             echo json_encode("Operación no válida.");
             break;
+            case "buscar":
+                if (isset($_GET["nombre"])) {
+                    $nombre = $_GET["nombre"];
+                    $datos = $producto->buscarPorNombre($nombre);
+                    if ($datos !== false) {
+                        echo json_encode($datos);
+                    } else {
+                        echo json_encode("No se encontraron productos con el nombre especificado.");
+                    }
+                } else {
+                    echo json_encode("Falta el parámetro nombre para buscar productos.");
+                }
+                break;
+            
     }
 } else {
     echo json_encode("No se especificó la operación.");

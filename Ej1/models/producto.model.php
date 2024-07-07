@@ -140,6 +140,37 @@ class Clase_Producto
             }
         }
     }
+    public function buscarPorNombre($nombre)
+{
+    try {
+        $con = new Clase_Conectar();
+        $conexion = $con->Procedimiento_Conectar();
+
+        $consulta = "SELECT * FROM productos WHERE nombre LIKE ?";
+        $stmt = $conexion->prepare($consulta);
+        $nombreBusqueda = "%" . $nombre . "%";
+        $stmt->bind_param("s", $nombreBusqueda);
+
+        if ($stmt->execute()) {
+            $resultado = $stmt->get_result();
+            $productos = array();
+            while ($fila = $resultado->fetch_assoc()) {
+                $productos[] = $fila;
+            }
+            return $productos;
+        } else {
+            throw new Exception($stmt->error);
+        }
+    } catch (Exception $e) {
+        error_log("Error al buscar productos por nombre: " . $e->getMessage());
+        return false;
+    } finally {
+        if (isset($conexion)) {
+            $conexion->close();
+        }
+    }
+}
+
 }
 
 
