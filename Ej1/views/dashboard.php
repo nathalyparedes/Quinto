@@ -2,6 +2,7 @@
 <html lang='es'>
 <head>
     <?php require_once('./html/head.php') ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href='../public/lib/calendar/lib/main.css' rel='stylesheet' />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -15,25 +16,11 @@
             margin-right: 5px;
             flex: 1;
         }
-        #precio::-webkit-outer-spin-button,
-        #precio::-webkit-inner-spin-button {
+
+        .hide-arrows::-webkit-outer-spin-button,
+        .hide-arrows::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
-        }
-        /* Estilo para ocultar las flechas de incremento y decremento solo en el campo de precio */
-        #precioEditar::-webkit-outer-spin-button,
-        #precioEditar::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        #precioEditar {
-            appearance: textfield;
-        }
-
-
-        #precio {
-            appearance: textfield;
         }
     </style>
 </head>
@@ -65,7 +52,6 @@
                 <div class='d-flex align-items-center justify-content-between mb-4'>
                     <h6 class='mb-0'>Lista de Productos</h6>
                     <input id="inputBuscar" type="text" class="form-control" placeholder="Buscar producto...">
-    </div>
                 </div>
 
                 <table class="table table-bordered table-striped table-hover table-responsive">
@@ -166,21 +152,7 @@
                             dataType: 'json',
                             success: function(response) {
                                 if (response && response !== "No se encontraron productos.") {
-                                    var cuerpoProductos = $('#cuerpoProductos');
-                                    cuerpoProductos.empty();
-                                    $.each(response, function(index, producto) {
-                                        var fila = '<tr data-id="' + producto.id + '">' +
-                                            '<td>' + producto.id + '</td>' +
-                                            '<td>' + producto.nombre + '</td>' +
-                                            '<td>' + producto.precio + '</td>' +
-                                            '<td>' + producto.stock + '</td>' +
-                                            '<td>' +
-                                            '<button class="btn btn-sm btn-warning btn-editar" data-id="' + producto.id + '">Editar</button>' +
-                                            '<button class="btn btn-sm btn-danger btn-eliminar ms-2" data-id="' + producto.id + '">Eliminar</button>' +
-                                            '</td>' +
-                                            '</tr>';
-                                        cuerpoProductos.append(fila);
-                                    });
+                                    mostrarProductos(response);
                                 } else {
                                     alert('Error al cargar los productos.');
                                 }
@@ -289,75 +261,101 @@
 
                     $('#cuerpoProductos').on('click', '.btn-eliminar', function() {
                         var idProducto = $(this).data('id');
-                        if (confirm("¿Está seguro que desea eliminar este producto?")) {
-                            $.ajax({
-                                url: '../controllers/producto.controllers.php?op=eliminar',
-                                type: 'POST',
-                                data: {
-                                    id: idProducto
-                                },
-                                dataType: 'json',
-                                success: function(response) {
-                                    if (response === "ok") {
-                                        cargarProductos();
-                                    } else {
-                                        alert('Error al eliminar producto: ' + response);
+                        
+                        // SweetAlert2 para mostrar el mensaje de confirmación
+                        Swal.fire({
+                            title: '¿Está seguro que desea eliminar este producto?',
+                            text: "Esta acción no se puede deshacer.",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Sí, eliminar',
+                            cancelButtonText: 'Cancelar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+    
+                                $.ajax({
+                                    url: '../controllers/producto.controllers.php?op=eliminar',
+                                    type: 'POST',
+                                    data: {
+                                        id: idProducto
+                                    },
+                                    dataType: 'json',
+                                    success: function(response) {
+                                        if (response === "ok") {
+                                            cargarProductos();
+                                            Swal.fire(
+                                                '¡Eliminado!',
+                                                'El producto ha sido eliminado correctamente.',
+                                                'success'
+                                            );
+                                        } else {
+                                            Swal.fire(
+                                                'Error',
+                                                'No se pudo eliminar el producto: ' + response,
+                                                'error'
+                                            );
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        console.error(error);
+                                        Swal.fire(
+                                            'Error',
+                                            'Error de conexión al servidor',
+                                            'error'
+                                        );
                                     }
-                                },
-                                error: function(xhr, status, error) {
-                                    console.error(error);
-                                    alert('Error de conexión al servidor');
-                                }
-                            });
-                        }
+                                });
+                            }
+                        });
                     });
-                });
 
-                $('#inputBuscar').on('input', function() {
-            var nombre = $(this).val().trim();
-            buscarProductos(nombre);
-        });
+                    $('#inputBuscar').on('input', function() {
+                        var nombre = $(this).val().trim();
+                        buscarProductos(nombre);
+                    });
 
-        // Función para buscar productos por nombre
-        function buscarProductos(nombre) {
-            $.ajax({
-                url: '../controllers/producto.controllers.php?op=buscar&nombre=' + nombre,
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    if (response && response.length > 0) {
-                        mostrarProductos(response);
-                    } else {
-                        // Mostrar un mensaje si no se encuentran productos
-                        var mensaje = '<tr><td colspan="5" class="text-center">No se encontraron productos con el nombre especificado.</td></tr>';
-                        $('#cuerpoProductos').html(mensaje);
+                    // Función para buscar productos por nombre
+                    function buscarProductos(nombre) {
+                        $.ajax({
+                            url: '../controllers/producto.controllers.php?op=buscar&nombre=' + nombre,
+                            type: 'GET',
+                            dataType: 'json',
+                            success: function(response) {
+                                if (response && response.length > 0) {
+                                    mostrarProductos(response);
+                                } else {
+                                    var mensaje = '<tr><td colspan="5" class="text-center">No se encontraron productos con el nombre especificado.</td></tr>';
+                                    $('#cuerpoProductos').html(mensaje);
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error(error);
+                                alert('Error al buscar productos.');
+                            }
+                        });
                     }
-                },
-                error: function(xhr, status, error) {
-                    console.error(error);
-                    alert('Error al buscar productos.');
-                }
-            });
-        }
 
-        // Función para mostrar productos en la tabla
-        function mostrarProductos(productos) {
-            var cuerpoProductos = $('#cuerpoProductos');
-            cuerpoProductos.empty();
-            $.each(productos, function(index, producto) {
-                var fila = '<tr data-id="' + producto.id + '">' +
-                    '<td>' + producto.id + '</td>' +
-                    '<td>' + producto.nombre + '</td>' +
-                    '<td>' + producto.precio + '</td>' +
-                    '<td>' + producto.stock + '</td>' +
-                    '<td>' +
-                    '<button class="btn btn-sm btn-warning btn-editar" data-id="' + producto.id + '">Editar</button>' +
-                    '<button class="btn btn-sm btn-danger btn-eliminar ms-2" data-id="' + producto.id + '">Eliminar</button>' +
-                    '</td>' +
-                    '</tr>';
-                cuerpoProductos.append(fila);
-            });
-        }
+                    // Función para mostrar productos en la tabla
+                    function mostrarProductos(productos) {
+                        var cuerpoProductos = $('#cuerpoProductos');
+                        cuerpoProductos.empty();
+                        $.each(productos, function(index, producto) {
+                            var fila = '<tr data-id="' + producto.id + '">' +
+                                '<td>' + producto.id + '</td>' +
+                                '<td>' + producto.nombre + '</td>' +
+                                '<td>' + producto.precio + '</td>' +
+                                '<td>' + producto.stock + '</td>' +
+                                '<td>' +
+                                '<button class="btn btn-sm btn-warning btn-editar" data-id="' + producto.id + '">Editar</button>' +
+                                '<button class="btn btn-sm btn-danger btn-eliminar ms-2" data-id="' + producto.id + '">Eliminar</button>' +
+                                '</td>' +
+                                '</tr>';
+                            cuerpoProductos.append(fila);
+                        });
+                    }
+                });
             </script>
         </div>
         <!-- Content End -->
