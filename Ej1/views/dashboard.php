@@ -15,6 +15,26 @@
             margin-right: 5px;
             flex: 1;
         }
+        #precio::-webkit-outer-spin-button,
+        #precio::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        /* Estilo para ocultar las flechas de incremento y decremento solo en el campo de precio */
+        #precioEditar::-webkit-outer-spin-button,
+        #precioEditar::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #precioEditar {
+            appearance: textfield;
+        }
+
+
+        #precio {
+            appearance: textfield;
+        }
     </style>
 </head>
 <body>
@@ -79,7 +99,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="precio">Precio</label>
-                                    <input type="number" name="precio" id="precio" placeholder=" " class="form-control" required>
+                                    <input type="number" name="precio" id="precio" placeholder=" " class="form-control hide-arrows" required step="0.01">
                                 </div>
                                 <div class="form-group">
                                     <label for="stock">Stock</label>
@@ -113,7 +133,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="precioEditar">Precio</label>
-                                    <input type="number" name="precioEditar" id="precioEditar" class="form-control" required>
+                                    <input type="number" name="precioEditar" id="precioEditar" class="form-control hide-arrows" required step="0.01">
                                 </div>
                                 <div class="form-group">
                                     <label for="stockEditar">Stock</label>

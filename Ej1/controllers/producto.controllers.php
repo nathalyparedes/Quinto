@@ -16,8 +16,8 @@ if (isset($_GET['op'])) {
         case "insertar":
             if (isset($_POST["nombre"], $_POST["precio"], $_POST["stock"])) {
                 $nombre = $_POST["nombre"];
-                $precio = $_POST["precio"];
-                $stock = $_POST["stock"];
+                $precio = floatval($_POST["precio"]); // Convertir a decimal
+                $stock = intval($_POST["stock"]);
                 $resultado = $producto->insertar($nombre, $precio, $stock);
                 if ($resultado === "ok") {
                     echo json_encode("ok");
@@ -30,10 +30,10 @@ if (isset($_GET['op'])) {
             break;
         case "actualizar":
             if (isset($_POST["id"], $_POST["nombre"], $_POST["precio"], $_POST["stock"])) {
-                $id = $_POST["id"];
+                $id = intval($_POST["id"]);
                 $nombre = $_POST["nombre"];
-                $precio = $_POST["precio"];
-                $stock = $_POST["stock"];
+                $precio = floatval($_POST["precio"]); // Convertir a decimal
+                $stock = intval($_POST["stock"]);
                 $resultado = $producto->actualizar($id, $nombre, $precio, $stock);
                 if ($resultado === "ok") {
                     // Obtener los datos actualizados del producto
@@ -52,7 +52,7 @@ if (isset($_GET['op'])) {
             break;
         case "eliminar":
             if (isset($_POST["id"])) {
-                $id = $_POST["id"];
+                $id = intval($_POST["id"]);
                 $resultado = $producto->eliminar($id);
                 if ($resultado === "ok") {
                     echo json_encode("ok");
@@ -65,7 +65,7 @@ if (isset($_GET['op'])) {
             break;
         case "detalle":
             if (isset($_GET["id"])) {
-                $id = $_GET["id"];
+                $id = intval($_GET["id"]);
                 $productoDetalle = $producto->obtenerPorId($id);
                 if ($productoDetalle) {
                     echo json_encode($productoDetalle);
@@ -84,4 +84,4 @@ if (isset($_GET['op'])) {
     echo json_encode("No se especificó la operación.");
 }
 
-?>
+

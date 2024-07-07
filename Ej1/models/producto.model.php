@@ -41,7 +41,8 @@ class Clase_Producto
             
             $consulta = "INSERT INTO productos (nombre, precio, stock) VALUES (?, ?, ?)";
             $stmt = $conexion->prepare($consulta);
-            $stmt->bind_param("sii", $nombre, $precio, $stock);
+            
+            $stmt->bind_param("sdi", $nombre, $precio, $stock); // 'i' para entero, 'd' para double (decimal)
             
             if ($stmt->execute()) {
                 return "ok";
@@ -66,8 +67,11 @@ class Clase_Producto
             
             $consulta = "UPDATE productos SET nombre=?, precio=?, stock=? WHERE id=?";
             $stmt = $conexion->prepare($consulta);
-            $stmt->bind_param("siii", $nombre, $precio, $stock, $id);
             
+            // Vincular los parámetros y especificar los tipos
+            $stmt->bind_param("sdii", $nombre, $precio, $stock, $id); // 'i' para entero, 'd' para double (decimal)
+            
+            // Ejecutar la consulta preparada
             if ($stmt->execute()) {
                 return "ok";
             } else {
@@ -91,7 +95,8 @@ class Clase_Producto
             
             $consulta = "DELETE FROM productos WHERE id=?";
             $stmt = $conexion->prepare($consulta);
-            $stmt->bind_param("i", $id);
+            
+            $stmt->bind_param("i", $id); // 'i' para entero
             
             if ($stmt->execute()) {
                 return "ok";
@@ -116,7 +121,8 @@ class Clase_Producto
             
             $consulta = "SELECT * FROM productos WHERE id=?";
             $stmt = $conexion->prepare($consulta);
-            $stmt->bind_param("i", $id);
+            
+            $stmt->bind_param("i", $id); // 'i' para entero
             
             if ($stmt->execute()) {
                 $resultado = $stmt->get_result();
@@ -136,4 +142,4 @@ class Clase_Producto
     }
 }
 
-?>
+

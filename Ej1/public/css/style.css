@@ -281,3 +281,14 @@
     background: var(--dark);
     border-color: var(--primary);
 }
+
+/* Ocultar flechas de incremento y decremento solo en el campo de precio */
+#precio::-webkit-outer-spin-button,
+#precio::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#precio {
+    appearance: textfield;
+}
