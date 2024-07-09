@@ -140,7 +140,7 @@
 
             <!-- JavaScript Libraries -->
             <?php require_once('./html/scripts.php') ?>
-            <script src="./dashboard.js"></script>
+            <script src="./productos.js"></script>
         </div>
         <!-- Content End -->
     </div>
